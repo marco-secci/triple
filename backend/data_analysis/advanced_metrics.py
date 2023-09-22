@@ -1,22 +1,30 @@
 # Imports
 import pandas as pd
 import numpy as np
+from backend import connect_to_db
 
 
+# ====================== #
+# ADVANCED METRICS CLASS #
+# ====================== #
 class AdvancedMetrics:
-    def __init__(self, basic_stats):
-        self.basic_stats = basic_stats  # You can initialize it with basic statistics like points, rebounds, etc.
+    # =========== #
+    # INIT METHOD #
+    # =========== #
+    def __init__(self, player_id):
+        # Defining variables:
+        self.player_id = player_id
+        self.conn = connect_to_db()  # connection to the database
+        # Takes the player's stats from the database, so it's ready to work with them
+        self.basic_stats = self.fetch_basic_stats_from_db()
 
-    def calculate_PER(self):
-        # Calculate Player Efficiency Rating (PER)
-        pass
-
-    def calculate_VORP(self):
-        # Calculate Value Over Replacement Player (VORP)
-        pass
-
-    def calculate_AST_TO_ratio(self):
-        # Calculate Assist to Turnover Ratio
-        pass
-
-    # Add more methods for other advanced metrics here
+    # ======================== #
+    # FETCH BASIC STATS METHOD #
+    # ======================== #
+    def fetch_basic_stats_from_db(self):
+        cur = self.conn.cursor()
+        query = f"SELECT * FROM players_stats_table WHERE player_id = {self.player_id};"
+        cur.execute(query)
+        basic_stats = cur.fetchone()
+        cur.close()
+        return basic_stats if basic_stats else {}
