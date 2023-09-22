@@ -1,0 +1,4 @@
+# Packages 
+mysql-connector-python
+pandas
+numpy

@@ -1,2 +1,12 @@
+# Test file
 /test.py
+
+# Config file
 .env
+__pycache__/
+
+
+# Virtual environment
+.venv/
+.spyproject/
+.vs/
