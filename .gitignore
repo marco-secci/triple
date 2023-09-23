@@ -1,2 +1,9 @@
+# Test files
 /test.py
+
+# Python stuff
 python.exe
+__pycache__/
+
+# Venv
+.venv/
