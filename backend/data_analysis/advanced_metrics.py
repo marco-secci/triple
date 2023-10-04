@@ -22,7 +22,8 @@ class AdvancedMetrics:
         self.player_id = player_id
         self.conn = conn()  # connection to the database
         # Takes the player's stats from the database, so it's ready to work with them
-        self.basic_stats = sp.get_player_career_avg(self)
+        with sp():
+            self.basic_stats = sp.get_player_career_avg(player_id)
 
     # =============================== #
     # PLAYER EFFICIENCY RATING METHOD #
