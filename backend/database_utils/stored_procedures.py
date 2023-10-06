@@ -120,7 +120,7 @@ class StoredProcedures:
     # ======================== #
     # LEAGUE SEASON AVG METHOD #
     # ======================== #
-    def execute_league_season_avg(self, league_id, season):
+    def get_league_season_avg(self, league_id, season):
         """### Parameters: `league_id` str, `season` int >= 1946
         This method returns as a `list` the averages in every base stat of a single player during a single season.
         #### IN CASE OF `NULL`:
