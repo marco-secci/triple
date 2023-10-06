@@ -9,3 +9,4 @@ __pycache__/
 .venv/
 .spyproject/
 .vs/
+backend/database_utils/sql/test.sql
