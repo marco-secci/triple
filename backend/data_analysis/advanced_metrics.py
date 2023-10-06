@@ -12,18 +12,36 @@ class AdvancedMetrics:
     # =========== #
     # INIT METHOD #
     # =========== #
-    def __init__(self, player_id):
-        """TODO Actually there's the need to improve this class. It needs to be able to work with teams
-        and leagues too, and to be more versatile rather than returning just the advanced metrics of a
-        single player's career.
-
+    def __init__(self, id, season=None):
         """
-        # Defining variables:
-        self.player_id = player_id
-        self.conn = conn()  # connection to the database
-        # Takes the player's stats from the database, so it's ready to work with them
-        with sp():
-            self.basic_stats = sp.get_player_career_avg(player_id)
+        ### __INIT__
+
+        ========================
+        Parameters:
+
+        #### `id`: `int` or `str`
+            if `1000000 <= id < 2000000`, it's a team's ID so its averages will be fetched\n
+            if `2000000 <= id < 3000000`, it's a player's ID so its averages will be fetched\n
+            if `isinstance(id, str) = True`, it's a league's ID so league averages will be fetched\n
+
+        #### `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, averages for that specific season
+            will be fetched; otherwise, career/all-time averages will be fetched.
+        """
+
+        # Checking which type of ID the method is dealing with:
+        if isinstance(id, str):
+            if season:
+                # Takes the league's stats from the database, so it's ready to work with them
+                with sp():
+                    self.basic_stats = sp.get_league_season_avg(id, season)
+            else:
+                with sp():
+                    self.basic_stats = sp.get_league_alltime_avg(id)  # TODO
+        elif id >= 1000000 and id < 2000000:
+            # Takes the team's stats from the database, so it's ready to work with them
+            with sp():
+                self.basic_stats = sp.get_team_season_avg(id)
 
     # =============================== #
     # PLAYER EFFICIENCY RATING METHOD #
