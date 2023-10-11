@@ -19,12 +19,12 @@ class AdvancedMetrics:
 
         Parameters:
 
-        #### `id`: `int` or `str`
+        #### - `id`: `int` or `str`
             if `1000000 <= id < 2000000`, it's a team's ID so its averages will be fetched\n
             if `2000000 <= id < 3000000`, it's a player's ID so its averages will be fetched\n
             if `isinstance(id, str) = True`, it's a league's ID so league averages will be fetched\n
 
-        #### `season = None`: `int`
+        #### - `season = None`: `int`
             if a value for season is inserted as a parameter of the method, averages for that specific season
             will be fetched; otherwise, career/all-time averages will be fetched.
         """
@@ -62,8 +62,59 @@ class AdvancedMetrics:
     # =========================== #
     # ASSIST OVER TURNOVER METHOD #
     # =========================== #
-    def ast_over_to(self, ast, to):
-        return ast / to
+    def ast_over_to(self, id, season=None):
+        """
+        ### AST_OVER_TO
+
+        ========================
+
+        Parameters:
+
+        #### - `id`: `int` or `str`
+            if `1000000 <= id < 2000000`, it's a team's ID so its average `A/TO` will be fetched\n
+            if `2000000 <= id < 3000000`, it's a player's ID so its average `A/TO` will be fetched\n
+            if `isinstance(id, str) = True`, it's a league's ID so league average `A/TO` will be fetched\n
+
+        #### - `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, average `A/TO` for that specific season
+            will be fetched; otherwise, career/all-time average `A/TO` will be fetched.
+        """
+        # If there's a season, that season's average will be fetched:
+        if season is not None:
+            """# Checking which type of ID the method is dealing with:
+            if isinstance(id, str):
+                with sp():
+                    # Takes the league's stats from the database, so it's ready to work with them:
+                    self.basic_stats = sp.get_league_avg(id, season)
+            """
+            if id >= 1000000 and id < 2000000:
+                # Takes the team's stats from the database, so it's ready to work with them:
+                with sp():
+                    self.basic_stats = sp.get_team_avg(id, season)
+            elif id >= 2000000 and id < 3000000:
+                # Takes the player's stats from the database, so it's ready to work with them:
+                with sp():
+                    aotr = sp.get_player_ast_avg(id, season) / sp.get_player_to_avg(
+                        id, season
+                    )
+        else:
+            """# Checking which type of ID the method is dealing with:
+            if isinstance(id, str):
+                with sp():
+                    # Takes the league's stats from the database, so it's ready to work with them:
+                    self.basic_stats = sp.get_league_avg(id, None)
+            elif id >= 1000000 and id < 2000000:
+                # Takes the team's stats from the database, so it's ready to work with them:
+                with sp():
+                    self.basic_stats = sp.get_team_avg(id, None)"""
+            if id >= 2000000 and id < 3000000:
+                # Takes the player's stats from the database, so it's ready to work with them:
+                with sp():
+                    aotr = sp.get_player_ast_avg(id, None) / sp.get_player_to_avg(
+                        id, None
+                    )
+
+        return aotr
 
     # =============================== #
     # PLAYER EFFICIENCY RATING METHOD #
