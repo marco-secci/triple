@@ -133,6 +133,35 @@ class StoredProcedures:
     # ===================================================== PLAYER SINGLE STAT AVERAGE ===================================================== #
     # ====================================================================================================================================== #
     # ====================================================================================================================================== #
+    # ====================== #
+    # MINUTES PLAYED AVERAGE #
+    # ====================== #
+    def get_player_mp_avg(self, player_id, season=None):
+        """
+        ### Parameters:
+        - `player_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average minutes played by a player in a single season, or during their
+        entire career if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_player_season_mp", (player_id, season))
+        else:
+            cur.callproc("fetch_player_career_mp", (player_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return results
+
     # ============== #
     # POINTS AVERAGE #
     # ============== #
@@ -544,6 +573,35 @@ class StoredProcedures:
     # ====================================================== TEAM SINGLE STAT AVERAGE ====================================================== #
     # ====================================================================================================================================== #
     # ====================================================================================================================================== #
+    # ====================== #
+    # MINUTES PLAYED AVERAGE #
+    # ====================== #
+    def get_team_mp_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `player_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average minutes played by the average player of a team in a single season, or during their
+        entire career if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_team_history_mp", (team_id, season))
+        else:
+            cur.callproc("fetch_team_history_mp", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return results
+
     # ============== #
     # POINTS AVERAGE #
     # ============== #
@@ -563,7 +621,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_pts", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_pts", (team_id))
+            cur.callproc("fetch_team_history_pts", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -592,7 +650,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_ast", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_ast", (team_id))
+            cur.callproc("fetch_team_history_ast", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -621,7 +679,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_dreb", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_dreb", (team_id))
+            cur.callproc("fetch_team_history_dreb", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -650,7 +708,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_oreb", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_oreb", (team_id))
+            cur.callproc("fetch_team_history_oreb", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -679,7 +737,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_treb", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_treb", (team_id))
+            cur.callproc("fetch_team_history_treb", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -708,7 +766,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_stl", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_stl", (team_id))
+            cur.callproc("fetch_team_history_stl", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -737,7 +795,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_blk", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_blk", (team_id))
+            cur.callproc("fetch_team_history_blk", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -766,7 +824,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_fgm", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_fgm", (team_id))
+            cur.callproc("fetch_team_history_fgm", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -795,7 +853,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_fga", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_fga", (team_id))
+            cur.callproc("fetch_team_history_fga", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -824,7 +882,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_ftm", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_ftm", (team_id))
+            cur.callproc("fetch_team_history_ftm", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -853,7 +911,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_fta", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_fta", (team_id))
+            cur.callproc("fetch_team_history_fta", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -882,7 +940,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_3pm", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_3pm", (team_id))
+            cur.callproc("fetch_team_history_3pm", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -911,7 +969,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_3pa", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_3pa", (team_id))
+            cur.callproc("fetch_team_history_3pa", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -940,7 +998,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_team_season_to", (team_id, season))
         else:
-            cur.callproc("fetch_team_career_to", (team_id))
+            cur.callproc("fetch_team_history_to", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -955,6 +1013,35 @@ class StoredProcedures:
     # ====================================================== LEAGUE SINGLE STAT AVERAGE ====================================================== #
     # ======================================================================================================================================== #
     # ======================================================================================================================================== #
+    # ====================== #
+    # MINUTES PLAYED AVERAGE #
+    # ====================== #
+    def get_league_mp_avg(self, league_id, season=None):
+        """
+        ### Parameters:
+        - `player_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average minutes played by the average player of a league in a single season, or during their
+        entire career if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_league_season_mp", (league_id, season))
+        else:
+            cur.callproc("fetch_league_history_mp", (league_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return results
+
     # ============== #
     # POINTS AVERAGE #
     # ============== #
@@ -974,7 +1061,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_pts", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_pts", (league_id))
+            cur.callproc("fetch_league_history_pts", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1003,7 +1090,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_ast", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_ast", (league_id))
+            cur.callproc("fetch_league_history_ast", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1032,7 +1119,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_dreb", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_dreb", (league_id))
+            cur.callproc("fetch_league_history_dreb", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1061,7 +1148,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_oreb", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_oreb", (league_id))
+            cur.callproc("fetch_league_history_oreb", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1090,7 +1177,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_treb", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_treb", (league_id))
+            cur.callproc("fetch_league_history_treb", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1119,7 +1206,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_stl", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_stl", (league_id))
+            cur.callproc("fetch_league_history_stl", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1148,7 +1235,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_blk", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_blk", (league_id))
+            cur.callproc("fetch_league_history_blk", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1177,7 +1264,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_fgm", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_fgm", (league_id))
+            cur.callproc("fetch_league_history_fgm", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1206,7 +1293,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_fga", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_fga", (league_id))
+            cur.callproc("fetch_league_history_fga", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1235,7 +1322,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_ftm", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_ftm", (league_id))
+            cur.callproc("fetch_league_history_ftm", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1264,7 +1351,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_fta", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_fta", (league_id))
+            cur.callproc("fetch_league_history_fta", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1293,7 +1380,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_3pm", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_3pm", (league_id))
+            cur.callproc("fetch_league_history_3pm", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1322,7 +1409,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_3pa", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_3pa", (league_id))
+            cur.callproc("fetch_league_history_3pa", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
@@ -1351,7 +1438,7 @@ class StoredProcedures:
         if season is not None:
             cur.callproc("fetch_league_season_to", (league_id, season))
         else:
-            cur.callproc("fetch_league_career_to", (league_id))
+            cur.callproc("fetch_league_history_to", (league_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
