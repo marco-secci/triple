@@ -568,6 +568,35 @@ class StoredProcedures:
         cur.close()
         return result
 
+    # ====================== #
+    # PERSONAL FOULS AVERAGE #
+    # ====================== #
+    def get_player_pf_avg(self, player_id, season=None):
+        """
+        ### Parameters:
+        - `player_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average fouls committed by a player in
+        a single season, or during their entire career if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_player_season_pf", (player_id, season))
+        else:
+            cur.callproc("fetch_player_career_pf", (player_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
     # ====================================================================================================================================== #
     # ====================================================================================================================================== #
     # ====================================================== TEAM SINGLE STAT AVERAGE ====================================================== #
@@ -1008,6 +1037,35 @@ class StoredProcedures:
         cur.close()
         return result
 
+    # ====================== #
+    # PERSONAL FOULS AVERAGE #
+    # ====================== #
+    def get_team_pf_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average fouls committed by a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_team_season_pf", (team_id, season))
+        else:
+            cur.callproc("fetch_team_history_pf", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
     # ======================================================================================================================================== #
     # ======================================================================================================================================== #
     # ====================================================== LEAGUE SINGLE STAT AVERAGE ====================================================== #
@@ -1439,6 +1497,504 @@ class StoredProcedures:
             cur.callproc("fetch_league_season_to", (league_id, season))
         else:
             cur.callproc("fetch_league_history_to", (league_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ====================== #
+    # PERSONAL FOULS AVERAGE #
+    # ====================== #
+    def get_league_pf_avg(self, league_id, season=None):
+        """
+        ### Parameters:
+        - `league_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average fouls committed by a league in
+        a single season, or during their entire career if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_league_season_pf", (league_id, season))
+        else:
+            cur.callproc("fetch_league_history_pf", (league_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ========================================================================================================================================== #
+    # ========================================================================================================================================== #
+    # ====================================================== OPPONENT SINGLE STAT AVERAGE ====================================================== #
+    # ========================================================================================================================================== #
+    # ========================================================================================================================================== #
+    # ====================== #
+    # MINUTES PLAYED AVERAGE #
+    # ====================== #
+    def get_opp_mp_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average minutes played against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_mp", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_mp", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ===================== #
+    # POINTS SCORED AVERAGE #
+    # ===================== #
+    def get_opp_pts_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average points scored against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_pts", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_pts", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # =============== #
+    # ASSISTS AVERAGE #
+    # =============== #
+    def get_opp_ast_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average assists made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_ast", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_ast", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ========================== #
+    # DEFENSIVE REBOUNDS AVERAGE #
+    # ========================== #
+    def get_opp_dreb_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average defensive rebounds grabbed against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_dreb", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_dreb", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ========================== #
+    # OFFENSIVE REBOUNDS AVERAGE #
+    # ========================== #
+    def get_opp_oreb_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average offensive rebounds grabbed against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_oreb", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_oreb", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ====================== #
+    # TOTAL REBOUNDS AVERAGE #
+    # ====================== #
+    def get_opp_treb_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average total rebounds grabbed against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_treb", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_treb", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ============== #
+    # STEALS AVERAGE #
+    # ============== #
+    def get_opp_stl_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average steals got against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_stl", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_stl", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ============== #
+    # BLOCKS AVERAGE #
+    # ============== #
+    def get_opp_blk_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average blocked shots against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_blk", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_blk", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ======================== #
+    # FIELD GOALS MADE AVERAGE #
+    # ======================== #
+    def get_opp_fgm_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average field goals made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_fgm", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_fgm", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # =========================== #
+    # FIELD GOAL ATTEMPTS AVERAGE #
+    # =========================== #
+    def get_opp_fga_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average field goal attempts against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_fga", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_fga", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # =========================== #
+    # THREE POINTERS MADE AVERAGE #
+    # =========================== #
+    def get_opp_3pm_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average three pointers made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_3pm", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_3pm", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ============================ #
+    # THREE POINT ATTEMPTS AVERAGE #
+    # ============================ #
+    def get_opp_3pa_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average three pointers attempted against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_3pa", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_3pa", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ======================== #
+    # FREE THROWS MADE AVERAGE #
+    # ======================== #
+    def get_opp_ftm_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average free throws made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_ftm", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_ftm", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # =========================== #
+    # FREE THROW ATTEMPTS AVERAGE #
+    # =========================== #
+    def get_opp_fta_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average free throw attempted against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_fta", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_fta", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ================ #
+    # TURNOVER AVERAGE #
+    # ================ #
+    def get_opp_to_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average turnovers made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_to", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_to", (team_id))
+
+        # Initializing variable as a list where the final output will be appended:
+        results = []
+        for result in cur.stored_results():
+            results.append(result.fetchall())
+
+        cur.close()
+        return result
+
+    # ====================== #
+    # PERSONAL FOULS AVERAGE #
+    # ====================== #
+    def get_opp_pf_avg(self, team_id, season=None):
+        """
+        ### Parameters:
+        - `team_id`: `int`
+        - `season = None`: `int` >= 1946
+        Returns a `list` parameter with the average turnovers made against a team in
+        a single season, or during their entire history if `season = None`.
+        #### IN CASE OF `NULL`:
+        `NULL` values are NOT treated as `0`, and statlines including `NULL` values are NOT
+        automatically excluded from the calculation of the averages. Instead, every statistic average will be
+        calculated with the number of available statlines containing that particular stat.
+        """
+        cur = self.conn.cursor()
+        if season is not None:
+            cur.callproc("fetch_opp_season_pf", (team_id, season))
+        else:
+            cur.callproc("fetch_opp_history_pf", (team_id))
 
         # Initializing variable as a list where the final output will be appended:
         results = []
