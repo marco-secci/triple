@@ -80,6 +80,7 @@ CREATE TABLE statlines(
     `3pm` INT,
     `3pa` INT,
     `to` INT,
+    pf INT,
     FOREIGN KEY (player_id) REFERENCES players(id),
     FOREIGN KEY (game_id) REFERENCES games(id)
 );
@@ -117,6 +118,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
@@ -228,6 +230,13 @@ WHERE player_id = p_player_id
     AND season = p_season
     AND game_id = g.id
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+WHERE player_id = p_player_id
+    AND season = p_season
+    AND game_id = g.id
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -242,7 +251,8 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 -- Calculating a team averages for a single season:
 DELIMITER $$ CREATE PROCEDURE team_season_avg(IN p_team_id INT, IN p_season INT) BEGIN
@@ -262,6 +272,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
@@ -373,6 +384,13 @@ FROM statlines s,
 WHERE players.team_id = p_team_id
     AND season = p_season
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+    JOIN players ON s.player_id = players.id
+WHERE players.team_id = p_team_id
+    AND season = p_season
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -387,7 +405,8 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 -- Calculating league averages for a single season:
 DELIMITER $$ CREATE PROCEDURE league_season_avg(IN p_tournament VARCHAR(10), p_season INT) BEGIN
@@ -407,6 +426,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
@@ -517,6 +537,13 @@ WHERE game_id = g.id
     AND season = p_season
     AND g.tournament = p_tournament
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+WHERE game_id = g.id
+    AND season = p_season
+    AND g.tournament = p_tournament
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -531,7 +558,8 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 -- =============================================== ALL-TIME AVERAGES =============================================== --
 DELIMITER $$ CREATE PROCEDURE player_career_avg(IN p_player_id INT) BEGIN -- Declaring variables where the averages are going to be stored:
@@ -551,6 +579,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 -- Calculating total number of games the player played in his career
 SELECT COUNT(*) INTO total_games
 FROM statlines
@@ -616,6 +645,10 @@ SELECT AVG(`to`) INTO avg_to
 FROM statlines
 WHERE player_id = p_player_id
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines
+WHERE player_id = p_player_id
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -630,7 +663,8 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 DELIMITER $$ CREATE PROCEDURE team_alltime_averages(IN p_team_id VARCHAR(10)) BEGIN
 DECLARE total_games INT;
@@ -649,6 +683,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
@@ -750,6 +785,12 @@ FROM statlines s,
     JOIN players p ON s.player_id = p.id
 WHERE p.team_id = p_team_id
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+    JOIN players p ON s.player_id = p.id
+WHERE p.team_id = p_team_id
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -764,10 +805,11 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 -- Stored procedure to fetch league all-time averages:
-CREATE PROCEDURE league_alltime_averages(IN p_league_id VARCHAR(10)) BEGIN
+DELIMITER $$ CREATE PROCEDURE league_alltime_averages(IN p_league_id VARCHAR(10)) BEGIN
 DECLARE total_games INT;
 DECLARE avg_mp FLOAT
 DECLARE avg_pts FLOAT;
@@ -784,6 +826,7 @@ DECLARE avg_fta FLOAT;
 DECLARE avg_3pm FLOAT;
 DECLARE avg_3pa FLOAT;
 DECLARE avg_to FLOAT;
+DECLARE avg_pf FLOAT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
@@ -879,6 +922,12 @@ FROM statlines s,
 WHERE g.tournament = p_league_id
     AND s.game_id = g.id
     AND `to` IS NOT NULL;
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+WHERE g.tournament = p_league_id
+    AND s.game_id = g.id
+    AND pf IS NOT NULL;
 SELECT avg_mp,
     avg_pts,
     avg_ast,
@@ -893,7 +942,8 @@ SELECT avg_mp,
     avg_fta,
     avg_3pm,
     avg_3pa,
-    avg_to;
+    avg_to,
+    avg_pf;
 END $$ DELIMITER;
 -- =============================================== SINGLE STATS AVERAGES =============================================== --
 -- ==========================================PLAYER SINGLE SEASON AVERAGES ========================================== --
@@ -906,7 +956,7 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s
 WHERE player_id = p_player_id
     AND season = p_season;
--- Calculate the points per game scored by the player in a single season:
+-- Calculate the minutes played by the player in a single season:
 SELECT AVG(mp) INTO avg_mp
 FROM statlines s
 WHERE p.player_id = p_player_id
@@ -1166,6 +1216,23 @@ WHERE player_id = p_player_id
 -- Return the result:
 SELECT avg_to;
 END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_player_season_pf(IN p_player_id INT, IN p_season INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s
+WHERE player_id = p_player_id
+    AND season = p_season;
+-- Calculate the fouls made by the player in a single season:
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s
+WHERE p.player_id = p_player_id
+    AND season = p_season
+    AND pf IS NOT NULL;
+SELECT avg_pf;
+END $$ DELIMITER;
 -- ========================================== PLAYER CAREER AVERAGES ========================================== --
 -- =============== MINUTES PLAYED =============== --
 DELIMITER $$ CREATE PROCEDURE fetch_player_career_mp(IN p_player_id INT) BEGIN -- Declare a variable to store the result:
@@ -1175,7 +1242,7 @@ DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
 FROM statlines s
 WHERE player_id = p_player_id;
--- Calculate the points per game scored by the player in a single season:
+-- Calculate the minutes played by the player in a single season:
 SELECT AVG(mp) INTO avg_mp
 FROM statlines
 WHERE p.player_id = p_player_id
@@ -1406,6 +1473,21 @@ WHERE player_id = p_player_id
 -- Return the result:
 SELECT avg_to;
 END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_player_career_pf(IN p_player_id INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s
+WHERE player_id = p_player_id;
+-- Calculate the fouls made by the player in a single season:
+SELECT AVG(pf) INTO avg_pf
+FROM statlines
+WHERE player_id = p_player_id
+    AND pf IS NOT NULL;
+SELECT avg_pf;
+END $$ DELIMITER;
 -- ================================ TEAM SINGLE SEASON AVERAGE ================================ --
 -- =============== MINUTES PLAYED =============== --
 DELIMITER $$ CREATE PROCEDURE fetch_team_season_mp(IN p_team_id INT, IN p_season INT) BEGIN -- Declare a variable to store the result:
@@ -1418,7 +1500,7 @@ FROM statlines s,
     JOIN players p ON s.player_id = p.id
 WHERE p.team_id = p_team_id
     AND season = p_season;
--- Calculate the points per game scored by the team in its history:
+-- Calculate the fouls made by the team in its history:
 SELECT AVG(mp) INTO avg_mp
 FROM statlines s,
     games g
@@ -1695,6 +1777,23 @@ WHERE p.team_id = p_team_id
     AND `to` IS NOT NULL;
 SELECT avg_to;
 END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_team_season_pf(IN p_team_id INT, IN p_season INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s
+WHERE team_id = p_team_id
+    AND season = p_season;
+-- Calculate the points per game scored by the team in a single season:
+SELECT AVG(pf) INTO avg_pf
+    JOIN players p ON s.player_id = p.id
+WHERE p.team_id = p_team_id
+    AND season = p_season
+    AND pf IS NOT NULL;
+SELECT avg_pf;
+END $$ DELIMITER;
 -- ================================ TEAM HISTORY AVERAGES ================================ --
 -- =============== MINUTES PLAYED =============== --
 DELIMITER $$ CREATE PROCEDURE fetch_team_history_mp(IN p_team_id INT) BEGIN -- Declare a variable to store the result:
@@ -1705,7 +1804,8 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
     JOIN players p ON s.player_id = p.id
-WHERE p.team_id = p_team_id -- Calculate the points per game scored by the team in its history:
+WHERE p.team_id = p_team_id;
+-- Calculate the fouls made by the team in its history:
 SELECT AVG(mp) INTO avg_mp
 FROM statlines s,
     games g
@@ -1939,6 +2039,23 @@ WHERE p.team_id = p_team_id
     AND `to` IS NOT NULL;
 SELECT avg_to;
 END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_team_history_pf(IN p_team_id INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s
+WHERE team_id = p_team_id;
+-- Calculate the fouls made by the team in a single season:
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+    JOIN players p ON s.player_id = p.id
+WHERE p.team_id = p_team_id
+    AND pf IS NOT NULL;
+SELECT avg_pf;
+END $$ DELIMITER;
 -- ================================ LEAGUE SINGLE SEASON ================================ --
 -- =============== MINUTES PLAYED =============== --
 DELIMITER $$ CREATE PROCEDURE fetch_league_season_mp(IN p_tournament VARCHAR(10), IN season INT) BEGIN -- Declare a variable to store the result:
@@ -1949,14 +2066,15 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
-    AND season = p_tournament;
--- Calculate the minutes played per game by the league in a single season:
+    AND g.tournament = p_tournament
+    AND season = p_season;
+-- Calculate the minutes played per game by the league in a single season: (prolly dont make sense)
 SELECT AVG(mp) INTO avg_mp
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
+    AND season = p_season
     AND mp IS NOT NULL;
 SELECT avg_mp;
 END $$ DELIMITER;
@@ -1969,13 +2087,14 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
-    AND season = p_season -- Calculate the points per game scored by the league in a single season:
+    AND g.tournament = p_tournament
+    AND season = p_season;
+-- Calculate the points per game scored by the league in a single season:
 SELECT AVG(pts) INTO avg_pts
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND pts IS NOT NULL;
 SELECT avg_pts;
@@ -1986,14 +2105,16 @@ DECLARE avg_ast FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the total ast made per game by the league in a single season:
 SELECT AVG(ast) INTO avg_ast
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND ast IS NOT NULL;
 SELECT avg_ast;
@@ -2004,14 +2125,16 @@ DECLARE avg_dreb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the total defensive boards grabbed per game by the league in a single season:
 SELECT AVG(dreb) INTO avg_dreb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND dreb IS NOT NULL;
 SELECT avg_dreb;
@@ -2022,14 +2145,16 @@ DECLARE avg_oreb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the total offensive boards grabbed per game by the league in a single season:
 SELECT AVG(oreb) INTO avg_oreb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND oreb IS NOT NULL;
 SELECT avg_oreb;
@@ -2040,14 +2165,16 @@ DECLARE avg_treb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the total boards grabbed per game by the league in a single season:
 SELECT AVG(treb) INTO avg_treb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND treb IS NOT NULL;
 SELECT avg_treb;
@@ -2058,14 +2185,16 @@ DECLARE avg_stl FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the steals per game made by the league in a single season:
 SELECT AVG(stl) INTO avg_stl
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND stl IS NOT NULL;
 SELECT avg_stl;
@@ -2076,14 +2205,16 @@ DECLARE avg_blk FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the steals per game made by the league in a single season:
 SELECT AVG(blk) INTO avg_blk
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND blk IS NOT NULL;
 SELECT avg_blk;
@@ -2094,14 +2225,16 @@ DECLARE avg_fgm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the field goals made per game by the league in a single season:
 SELECT AVG(fgm) INTO avg_fgm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND fgm IS NOT NULL;
 SELECT avg_fgm;
@@ -2112,14 +2245,16 @@ DECLARE avg_fga FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the field goal attempts per game by the league in a single season:
 SELECT AVG(fga) INTO avg_fga
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND fga IS NOT NULL;
 SELECT avg_fga;
@@ -2130,14 +2265,16 @@ DECLARE avg_ftm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the free throws made per game by the league in a single season:
 SELECT AVG(ftm) INTO avg_ftm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND ftm IS NOT NULL;
 SELECT avg_ftm;
@@ -2148,14 +2285,16 @@ DECLARE avg_fta FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the free throw attempts per game by the league in a single season:
 SELECT AVG(fta) INTO avg_fta
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND fta IS NOT NULL;
 SELECT avg_fta;
@@ -2166,14 +2305,16 @@ DECLARE avg_3pm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the three pointers made per game by the league in a single season:
 SELECT AVG(`3pm`) INTO avg_3pm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND `3pm` IS NOT NULL;
 END $$ DELIMITER;
@@ -2183,14 +2324,16 @@ DECLARE avg_3pa FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the three pointer attempts per game by the league in a single season:
 SELECT AVG(`3pa`) INTO avg_3pa
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND `3pa` IS NOT NULL;
 SELECT avg_3pa;
@@ -2201,17 +2344,39 @@ DECLARE avg_to FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
 -- Calculate the turnovers per game by the league in a single season:
 SELECT AVG(`to`) INTO avg_to
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND season = p_season
     AND `to` IS NOT NULL;
 SELECT avg_to;
+END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_league_season_pf(IN p_tournament INT, IN p_season INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament
+    AND season = p_season;
+-- Calculate the points per game scored by the league in a single season:
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+WHERE game_id = g.id
+    AND g.tournament = p_tournament
+    AND season = p_season
+    AND pf IS NOT NULL;
+SELECT avg_pf;
 END $$ DELIMITER;
 -- ================================ LEAGUE HISTORY AVERAGES ================================ --
 -- =============== MINUTES PLAYED =============== --
@@ -2223,12 +2388,12 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament -- Calculate the minutes played per game by the league in its history:
+    AND g.tournament = p_tournament -- Calculate the minutes played per game by the league in its history:
 SELECT AVG(mp) INTO avg_mp
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND mp IS NOT NULL;
 SELECT avg_mp;
 END $$ DELIMITER;
@@ -2241,12 +2406,12 @@ SELECT COUNT(*) INTO total_games
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament -- Calculate the points per game scored by the league in its history:
+    AND g.tournament = p_tournament -- Calculate the points per game scored by the league in its history:
 SELECT AVG(pts) INTO avg_pts
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND pts IS NOT NULL;
 SELECT avg_pts;
 END $$ DELIMITER;
@@ -2256,14 +2421,15 @@ DECLARE avg_ast FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the total ast made per game by the league in its history:
 SELECT AVG(ast) INTO avg_ast
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND ast IS NOT NULL;
 SELECT avg_ast;
 END $$ DELIMITER;
@@ -2273,14 +2439,15 @@ DECLARE avg_dreb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the total defensive boards grabbed per game by the league in its history:
 SELECT AVG(dreb) INTO avg_dreb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND dreb IS NOT NULL;
 SELECT avg_dreb;
 END $$ DELIMITER;
@@ -2290,14 +2457,15 @@ DECLARE avg_oreb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the total offensive boards grabbed per game by the league in its history:
 SELECT AVG(oreb) INTO avg_oreb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND oreb IS NOT NULL;
 SELECT avg_oreb;
 END $$ DELIMITER;
@@ -2307,14 +2475,15 @@ DECLARE avg_treb FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the total boards grabbed per game by the league in its history:
 SELECT AVG(treb) INTO avg_treb
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND treb IS NOT NULL;
 SELECT avg_treb;
 END $$ DELIMITER;
@@ -2324,14 +2493,15 @@ DECLARE avg_stl FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the steals per game made by the league in its history:
 SELECT AVG(stl) INTO avg_stl
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND stl IS NOT NULL;
 SELECT avg_stl;
 END $$ DELIMITER;
@@ -2341,14 +2511,15 @@ DECLARE avg_blk FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the steals per game made by the league in its history:
 SELECT AVG(blk) INTO avg_blk
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND blk IS NOT NULL;
 SELECT avg_blk;
 END $$ DELIMITER;
@@ -2358,14 +2529,15 @@ DECLARE avg_fgm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the field goals made per game by the league in its history:
 SELECT AVG(fgm) INTO avg_fgm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND fgm IS NOT NULL;
 SELECT avg_fgm;
 END $$ DELIMITER;
@@ -2375,14 +2547,15 @@ DECLARE avg_fga FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the field goal attempts per game by the league in its history:
 SELECT AVG(fga) INTO avg_fga
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND fga IS NOT NULL;
 SELECT avg_fga;
 END $$ DELIMITER;
@@ -2392,14 +2565,15 @@ DECLARE avg_ftm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the free throws made per game by the league in its history:
 SELECT AVG(ftm) INTO avg_ftm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND ftm IS NOT NULL;
 SELECT avg_ftm;
 END $$ DELIMITER;
@@ -2409,14 +2583,15 @@ DECLARE avg_fta FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the free throw attempts per game by the league in its history:
 SELECT AVG(fta) INTO avg_fta
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND fta IS NOT NULL;
 SELECT avg_fta;
 END $$ DELIMITER;
@@ -2426,14 +2601,15 @@ DECLARE avg_3pm FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the three pointers made per game by the league in its history:
 SELECT AVG(`3pm`) INTO avg_3pm
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND `3pm` IS NOT NULL;
 END $$ DELIMITER;
 -- =============== THREE POINTER ATTEMPTS =============== --
@@ -2442,14 +2618,15 @@ DECLARE avg_3pa FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the three pointer attempts per game by the league in its history:
 SELECT AVG(`3pa`) INTO avg_3pa
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND `3pa` IS NOT NULL;
 SELECT avg_3pa;
 END $$ DELIMITER;
@@ -2459,14 +2636,403 @@ DECLARE avg_to FLOAT;
 -- Declare a variable where to count the total games:
 DECLARE total_games INT;
 SELECT COUNT(*) INTO total_games
-FROM statlines s
-WHERE tournament_id = p_tournament;
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
 -- Calculate the turnovers per game by the league in its history:
 SELECT AVG(`to`) INTO avg_to
 FROM statlines s,
     games g
 WHERE game_id = g.id
-    AND g.tournament_id = p_tournament
+    AND g.tournament = p_tournament
     AND `to` IS NOT NULL;
 SELECT avg_to;
+END $$ DELIMITER;
+-- =============== FOULS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_league_history_pf(IN p_tournament INT) BEGIN -- Declare a variable to store the result:
+DECLARE avg_pf INT;
+-- Declare a variable where to count the total games:
+DECLARE total_games INT;
+SELECT COUNT(*) INTO total_games
+FROM statlines s,
+    games g
+WHERE g.tournament = p_tournament;
+-- Calculate the fouls made by the league in a single season:
+SELECT AVG(pf) INTO avg_pf
+FROM statlines s,
+    games g
+WHERE game_id = g.id
+    AND g.tournament = p_tournament
+    AND pf IS NOT NULL;
+SELECT avg_pf;
+END $$ DELIMITER;
+-- ========================================== OPPONENTS SEASON AVERAGES ========================================== --
+-- =============== MINUTES PLAYED =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_mp(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_mp FLOAT;
+SELECT AVG(s.mp) INTO opp_avg_mp
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.mp IS NOT NULL;
+SELECT opp_avg_mp;
+END $$ DELIMITER;
+-- =============== POINTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_pts(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_pts FLOAT;
+SELECT AVG(s.pts) INTO opp_avg_pts
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.pts IS NOT NULL;
+SELECT opp_avg_pts;
+END $$ DELIMITER;
+-- =============== ASSISTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_ast(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_ast FLOAT;
+SELECT AVG(s.ast) INTO opp_avg_ast
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.ast IS NOT NULL;
+SELECT opp_avg_ast;
+END $$ DELIMITER;
+-- =============== DEFENSIVE REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE calc_season_opp_dreb(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_dreb FLOAT;
+SELECT AVG(s.dreb) INTO opp_avg_dreb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.dreb IS NOT NULL;
+SELECT opp_avg_dreb;
+END $$ DELIMITER;
+-- =============== OFFENSIVE REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_oreb(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_oreb FLOAT;
+SELECT AVG(s.oreb) INTO opp_avg_oreb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.oreb IS NOT NULL;
+SELECT opp_avg_oreb;
+END $$ DELIMITER;
+-- =============== TOTAL REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_treb(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_treb FLOAT;
+SELECT AVG(s.treb) INTO opp_avg_treb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.treb IS NOT NULL;
+SELECT opp_avg_treb;
+END $$ DELIMITER;
+-- =============== STEALS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_stl(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_stl FLOAT;
+SELECT AVG(s.stl) INTO opp_avg_stl
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.stl IS NOT NULL;
+SELECT opp_avg_stl;
+END $$ DELIMITER;
+-- =============== BLOCKS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_blk(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_blk FLOAT;
+SELECT AVG(s.blk) INTO opp_avg_blk
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.blk IS NOT NULL;
+SELECT opp_avg_blk;
+END $$ DELIMITER;
+-- =============== FIELD GOALS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_fgm(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_fgm FLOAT;
+SELECT AVG(s.fgm) INTO opp_avg_fgm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.fgm IS NOT NULL;
+SELECT opp_avg_fgm;
+END $$ DELIMITER;
+-- =============== FIELD GOAL ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_fga(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_fga FLOAT;
+SELECT AVG(s.fga) INTO opp_avg_fga
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.fga IS NOT NULL;
+SELECT opp_avg_fga;
+END $$ DELIMITER;
+-- =============== THREE POINTERS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_3pm(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_3pm FLOAT;
+SELECT AVG(s.3pm) INTO opp_avg_3pm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.3pm IS NOT NULL;
+SELECT opp_avg_3pm;
+END $$ DELIMITER;
+-- =============== THREE POINTERS ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_3pa(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_3pa FLOAT;
+SELECT AVG(s.3pa) INTO opp_avg_3pa
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.3pa IS NOT NULL;
+SELECT opp_avg_3pa;
+END $$ DELIMITER;
+-- =============== FREE THROW MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_ftm(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_ftm FLOAT;
+SELECT AVG(s.ftm) INTO opp_avg_ftm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.ftm IS NOT NULL;
+SELECT opp_avg_ftm;
+END $$ DELIMITER;
+-- =============== FREE THROW ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_fta(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_fta FLOAT;
+SELECT AVG(s.fta) INTO opp_avg_fta
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.fta IS NOT NULL;
+SELECT opp_avg_fta;
+END $$ DELIMITER;
+-- =============== TURNOVER =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_to(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_to FLOAT;
+SELECT AVG(s.to) INTO opp_avg_to
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.to IS NOT NULL;
+SELECT opp_avg_to;
+END $$ DELIMITER;
+-- =============== PERSONAL FOULS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_season_opp_pf(IN p_team_id INT, IN p_season INT) BEGIN
+DECLARE opp_avg_pf FLOAT;
+SELECT AVG(s.pf) INTO opp_avg_pf
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND g.season = p_season
+    AND s.pf IS NOT NULL;
+SELECT opp_avg_pf;
+END $$ DELIMITER;
+-- ========================================== OPPONENTS HISTORY AVERAGES ========================================== --
+-- =============== MINUTES PLAYED =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_mp(IN p_team_id INT) BEGIN
+DECLARE opp_avg_mp FLOAT;
+SELECT AVG(s.mp) INTO opp_avg_mp
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.mp IS NOT NULL;
+SELECT opp_avg_mp;
+END $$ DELIMITER;
+-- =============== POINTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_pts(IN p_team_id INT) BEGIN
+DECLARE opp_avg_pts FLOAT;
+SELECT AVG(s.pts) INTO opp_avg_pts
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.pts IS NOT NULL;
+SELECT opp_avg_pts;
+END $$ DELIMITER;
+-- =============== ASSISTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_ast(IN p_team_id INT) BEGIN
+DECLARE opp_avg_ast FLOAT;
+SELECT AVG(s.ast) INTO opp_avg_ast
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.ast IS NOT NULL;
+SELECT opp_avg_ast;
+END $$ DELIMITER;
+-- =============== DEFENSIVE REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE calc_history_opp_dreb(IN p_team_id INT) BEGIN
+DECLARE opp_avg_dreb FLOAT;
+SELECT AVG(s.dreb) INTO opp_avg_dreb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.dreb IS NOT NULL;
+SELECT opp_avg_dreb;
+END $$ DELIMITER;
+-- =============== OFFENSIVE REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_oreb(IN p_team_id INT) BEGIN
+DECLARE opp_avg_oreb FLOAT;
+SELECT AVG(s.oreb) INTO opp_avg_oreb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.oreb IS NOT NULL;
+SELECT opp_avg_oreb;
+END $$ DELIMITER;
+-- =============== TOTAL REBOUNDS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_treb(IN p_team_id INT) BEGIN
+DECLARE opp_avg_treb FLOAT;
+SELECT AVG(s.treb) INTO opp_avg_treb
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.treb IS NOT NULL;
+SELECT opp_avg_treb;
+END $$ DELIMITER;
+-- =============== STEALS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_stl(IN p_team_id INT) BEGIN
+DECLARE opp_avg_stl FLOAT;
+SELECT AVG(s.stl) INTO opp_avg_stl
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.stl IS NOT NULL;
+SELECT opp_avg_stl;
+END $$ DELIMITER;
+-- =============== BLOCKS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_blk(IN p_team_id INT) BEGIN
+DECLARE opp_avg_blk FLOAT;
+SELECT AVG(s.blk) INTO opp_avg_blk
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.blk IS NOT NULL;
+SELECT opp_avg_blk;
+END $$ DELIMITER;
+-- =============== FIELD GOALS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_fgm(IN p_team_id INT) BEGIN
+DECLARE opp_avg_fgm FLOAT;
+SELECT AVG(s.fgm) INTO opp_avg_fgm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.fgm IS NOT NULL;
+SELECT opp_avg_fgm;
+END $$ DELIMITER;
+-- =============== FIELD GOAL ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_fga(IN p_team_id INT) BEGIN
+DECLARE opp_avg_fga FLOAT;
+SELECT AVG(s.fga) INTO opp_avg_fga
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.fga IS NOT NULL;
+SELECT opp_avg_fga;
+END $$ DELIMITER;
+-- =============== THREE POINTERS MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_3pm(IN p_team_id INT) BEGIN
+DECLARE opp_avg_3pm FLOAT;
+SELECT AVG(s.3pm) INTO opp_avg_3pm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.3pm IS NOT NULL;
+SELECT opp_avg_3pm;
+END $$ DELIMITER;
+-- =============== THREE POINTERS ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_3pa(IN p_team_id INT) BEGIN
+DECLARE opp_avg_3pa FLOAT;
+SELECT AVG(s.3pa) INTO opp_avg_3pa
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.3pa IS NOT NULL;
+SELECT opp_avg_3pa;
+END $$ DELIMITER;
+-- =============== FREE THROW MADE =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_ftm(IN p_team_id INT) BEGIN
+DECLARE opp_avg_ftm FLOAT;
+SELECT AVG(s.ftm) INTO opp_avg_ftm
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.ftm IS NOT NULL;
+SELECT opp_avg_ftm;
+END $$ DELIMITER;
+-- =============== FREE THROW ATTEMPTS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_fta(IN p_team_id INT) BEGIN
+DECLARE opp_avg_fta FLOAT;
+SELECT AVG(s.fta) INTO opp_avg_fta
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.fta IS NOT NULL;
+SELECT opp_avg_fta;
+END $$ DELIMITER;
+-- =============== TURNOVER =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_to(IN p_team_id INT) BEGIN
+DECLARE opp_avg_to FLOAT;
+SELECT AVG(s.to) INTO opp_avg_to
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.to IS NOT NULL;
+SELECT opp_avg_to;
+END $$ DELIMITER;
+-- =============== PERSONAL FOULS =============== --
+DELIMITER $$ CREATE PROCEDURE fetch_history_opp_pf(IN p_team_id INT) BEGIN
+DECLARE opp_avg_pf FLOAT;
+SELECT AVG(s.pf) INTO opp_avg_pf
+FROM statlines s
+    JOIN players p ON s.player_id = p.id
+    JOIN games g ON s.game_id = g.id
+WHERE p.team_id != p_team_id
+    AND s.pf IS NOT NULL;
+SELECT opp_avg_pf;
 END $$ DELIMITER;
