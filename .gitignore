@@ -1,1 +1,9 @@
-/test.py
+# Tests
+test.py
+backend/tests/unittest.py
+backend/database_utils/sql/test.sql
+
+# Environments
+.vscode
+.env
+__pycache__
