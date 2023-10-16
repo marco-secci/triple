@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import datetime as dt
 from db_connector import connect_to_db as conn
 
 # Get the current year
-current_year = datetime.now().year
+current_year = dt.now().year
 
 # Connect to MariaDB
 conn = conn()

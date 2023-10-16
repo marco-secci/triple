@@ -1,6 +1,7 @@
 # Test file
 /test.py
 backend/database_utils/sql/test.sql
+tests/
 # Config file
 .env
 __pycache__/

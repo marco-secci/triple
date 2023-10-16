@@ -1,5 +1,5 @@
 from backend import connect_to_db
-
+from datetime import datetime as dt
 
 # ======================= #
 # STORED PROCEDURES CLASS #
@@ -42,10 +42,10 @@ class StoredProcedures:
     # ===================================================================================================================================== #
     # ===================================================================================================================================== #
 
-    # ================== #
+    # ================= #
     # PLAYER AVG METHOD #
     # ================= #
-    def get_player_avg(self, player_id, season=None):
+    def get_player_avg(self, player_id: int, season: int=None) -> list: 
         """### Parameters:
         -`player_id`: `int`
         - `season = None`: `int` >= 1946
@@ -57,6 +57,13 @@ class StoredProcedures:
         calculated with the number of available statlines containing that particular stat.
         """
         cur = self.conn.cursor()
+
+        # Get the current year - to check that the inserted season is valid:
+        current_year = dt.now().year
+        if season > current_year:
+            raise ValueError(f"Please insert a valid season value [value inserted '{season}' is greater than the current year, {current_year}].")
+        elif season < 1946:
+            raise ValueError(f"Please insert a valid season value [value inserted '{season}' is lower than the first ever season, 1946].")
         if season is not None:
             cur.callproc("player_season_avg", (player_id, season))
         else:

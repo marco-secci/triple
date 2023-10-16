@@ -283,7 +283,6 @@ class AdvancedMetrics:
                                     - "t" for total rebounds (always 1);
                                     - "d" for defensive rebounds;
                                     - "o" for offensive rebounds. 
-                                     
                                     """
                     )
         else:

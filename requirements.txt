@@ -1,9 +1,4 @@
-# Packages - install in your own environment
 mysql-connector-python
 pandas
 numpy
-dotenv
-os
-
-# Additional files 
-.env
+python-dotenv
