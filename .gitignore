@@ -3,9 +3,9 @@
 backend/database_utils/sql/test.sql
 tests/
 # Config file
-.env
-__pycache__/
 
+__pycache__/
+.env
 # Virtual environment
 .venv/
 .spyproject/
