@@ -331,10 +331,6 @@ class AdvancedMetrics:
             if `1000000 <= id < 2000000`, it's a team's ID so its average possessions will be fetched\n
             if `isinstance(id, str) = True`, it's a league's ID so league average possessions will be fetched
 
-        #### - `opp_id = None`: `int`
-            this NEEDS to be input if `id` is a team's id and you want to calculate it's est. possessions in a
-            single game.
-
         #### - `season = None`: `int`
             if a value for season is inserted as a parameter of the method, average possessions for that specific season
             will be fetched; otherwise, all-time average possessions will be fetched.
@@ -413,11 +409,83 @@ class AdvancedMetrics:
                         + sp.get_team_to_avg(id, None)
                     )
 
+    # =========== #
+    # PACE METHOD #
+    # =========== #
+    def pace(self, id, league_mp=40, season=None):
+        """
+        ### PACE
+
+        ========================
+
+        Description:
+        Number of possessions a team has during a game or a season on average, adjusted per minutes played so
+        extra possessions made during OTs don't inflate the stat.
+
+        ========================
+
+        Parameters:
+        #### - `id`: `int` or `str`
+            if `1000000 <= id < 2000000`, it's a team's ID so its average pace will be fetched\n
+            if `isinstance(id, str) = True`, it's a league's ID so league average pace will be fetched
+
+        #### - `league__mp`: `int`
+            Minutes played per game in the league. It's almost always 40, but some North American tournaments
+            play for 48 minutes.
+
+        #### - `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, average pace for that specific season
+            will be fetched; otherwise, all-time average pace will be fetched.
+
+        """
+        if season is not None:
+            if isinstance(id, str):
+                with sp():
+                    self.pace = (
+                        self.poss(id, season) / sp.get_league_mp_avg(id, season)
+                    ) * league_mp
+            else:
+                with sp():
+                    self.pace = self.poss(id, season) / sp.get_team_mp_avg(id, season)
+        else:
+            if isinstance(id, str):
+                with sp():
+                    self.pace = (
+                        self.poss(id, None) / sp.get_league_mp_avg(id, None)
+                    ) * league_mp
+            else:
+                with sp():
+                    self.pace = self.poss(id, None) / sp.get_team_mp_avg(id, None)
+
     # =============================== #
     # PLAYER EFFICIENCY RATING METHOD #
     # =============================== #
     def uper(self, player_id, team_id, league_id, season=None):
-        """TODO I need to have queries for league average and team average to calculate per"""
+        """
+        ### UPER - Unadjusted Player Efficiency Rating
+
+        ========================
+
+        Description:
+        The uPER tries to condense all of a player's contribution on the court in just one number;
+
+        ========================
+
+        Parameters:
+        #### - `player_id`: `int`
+            id of the player.
+
+        #### - `team_id`: `int`
+            id of the player's team.
+
+        #### - `league_id`: `str`
+            id of the league the player plays in.
+
+        #### - `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, average uPER for that specific season
+            will be fetched; otherwise, all-time average uPER will be fetched.
+
+        """
 
         with sp():
             self.factor = (2 / 3) - (
@@ -505,3 +573,91 @@ class AdvancedMetrics:
                 ]
             )
         return self.u_per
+
+    # ================== #
+    # LEAGUE UPER METHOD #
+    # ================== #
+    """
+    TODO something like:
+    for all players in league:
+        lg_uper += uper(player)
+        counter++
+    return lg_uper/counter
+    """
+
+    # =================== #
+    # ADJUSTED PER METHOD #
+    # =================== #
+    def aper(self, player_id, team_id, league_id, league_mp=40, season=None):
+        """
+        ### APER - Adjusted Player Efficiency Rating
+
+        ========================
+
+        Description:
+        The aPER tries to condense all of a player's contribution on the court in just one number, adjusted per league pace.
+
+        ========================
+
+        Parameters:
+        #### - `player_id`: `int`
+            id of the player.
+
+        #### - `team_id`: `int`
+            id of the player's team.
+
+        #### - `league_id`: `str`
+            id of the league the player plays in.
+
+        #### - `league__mp`: `int`
+            Minutes played per game in the league. It's almost always 40, but some North American tournaments
+            play for 48 minutes.
+
+        #### - `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, average aPER for that specific season
+            will be fetched; otherwise, all-time average aPER will be fetched.
+
+        """
+
+        with sp():
+            self.a_per = self.uper(player_id, team_id, league_id, season) * (
+                self.pace(league_id, league_mp) / self.pace(team_id, league_mp)
+            )
+
+    def per(self, player_id, team_id, league_id, league_mp=40, season=None):
+        """
+        ### PER - Player Efficiency Rating
+
+        ========================
+
+        Description:
+        The PER tries to condense all of a player's contribution on the court in just one number, adjusted per league pace.
+        It's league average will always be 15 so the heavy-minutes players don't take any advantage or disadvantage.
+
+        ========================
+
+        Parameters:
+        #### - `player_id`: `int`
+            id of the player.
+
+        #### - `team_id`: `int`
+            id of the player's team.
+
+        #### - `league_id`: `str`
+            id of the league the player plays in.
+
+        #### - `league__mp`: `int`
+            Minutes played per game in the league. It's almost always 40, but some North American tournaments
+            play for 48 minutes.
+
+        #### - `season = None`: `int`
+            if a value for season is inserted as a parameter of the method, average PER for that specific season
+            will be fetched; otherwise, all-time average PER will be fetched.
+
+        """
+        self.per = self.aper(player_id, team_id, league_id, league_mp, season) * (
+            15
+            / self.uper(
+                player_id, team_id, league_id, season
+            )  # TODO make method to have league average uPER as now it's just a player's
+        )
